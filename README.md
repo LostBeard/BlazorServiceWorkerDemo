@@ -13,6 +13,7 @@ This is currently a working proof of concept and likely to change. Any and all f
 This project relies on my other repo [SpawnDev.BlazorJS](https://github.com/LostBeard/SpawnDev.BlazorJS) and more specifically [SpawnDev.BlazorJS.WebWorkers](https://github.com/LostBeard/SpawnDev.BlazorJS#spawndevblazorjswebworkers)
 
 ## Quick Start
+A very basic verbose quick start example.
 
 ### Add Nuget
 SpawnDev.BlazorJS.WebWorkers 2.2.20 or later
