@@ -22,7 +22,7 @@ Create or modify you wwwroot/service-worker.js in your Blazor WASM project to im
 importScripts('_content/SpawnDev.BlazorJS.WebWorkers/spawndev.blazorjs.webworkers.js');
 ```
 
-Example Program.cs  
+A minimal example Program.cs  
 ```cs
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 // SpawnDev.BlazorJS
@@ -31,7 +31,6 @@ builder.Services.AddBlazorJSRuntime();
 builder.Services.AddWebWorkerService();
 // Our ServiceWorker handler AppServiceWorker (inherits from ServiceWorkerManager)
 builder.Services.RegisterServiceWorker<AppServiceWorker>();
-builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 // SpawnDev.BlazorJS startup (replaces RunAsync())
 await builder.Build().BlazorJSRunAsync();
 ```
