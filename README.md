@@ -19,11 +19,13 @@ A very basic verbose quick start example. Create a new .Net 8 RC2 Blazor WASM pr
 SpawnDev.BlazorJS.WebWorkers 2.2.20 or later
 
 ### wwwroot/service-worker.js
+Create or modify to to look like the line below.
 ```js
 importScripts('_content/SpawnDev.BlazorJS.WebWorkers/spawndev.blazorjs.webworkers.js');
 ```
 
 ### Program.cs
+A minimal Program.cs
 ```cs
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 // SpawnDev.BlazorJS
@@ -36,7 +38,8 @@ builder.Services.RegisterServiceWorker<AppServiceWorker>();
 await builder.Build().BlazorJSRunAsync();
 ```
 
-### AppServiceWorker.cs - A verbose service worker example.
+### AppServiceWorker.cs
+A verbose service worker implementation.
 - Handle ServiceWorker desired events by overriding the ServiceWorkerManager base class virtual methods.
 - The ServiceWorker event handlers are only called when running in a ServiceWorkerGlobalScope context.
 - The AppServiceWorker singleton will may run in any scope and therefore must be scope aware. (For example, do not try to use localStorage in a Worker scope.)
