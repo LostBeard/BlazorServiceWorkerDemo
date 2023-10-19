@@ -22,7 +22,7 @@ Create or modify you wwwroot/service-worker.js in your Blazor WASM project to im
 importScripts('_content/SpawnDev.BlazorJS.WebWorkers/spawndev.blazorjs.webworkers.js');
 ```
 
-A minimal example Program.cs  
+A minimal Program.cs  
 ```cs
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 // SpawnDev.BlazorJS
