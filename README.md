@@ -12,17 +12,17 @@ This is currently a working proof of concept and likely to change. Any and all f
 
 This project relies on my other repo [SpawnDev.BlazorJS](https://github.com/LostBeard/SpawnDev.BlazorJS) and more specifically [SpawnDev.BlazorJS.WebWorkers](https://github.com/LostBeard/SpawnDev.BlazorJS#spawndevblazorjswebworkers)
 
-## Quick start
+## Quick Start
 
-Add Nuget:  
+### Add Nuget
 SpawnDev.BlazorJS.WebWorkers 2.2.20 or later
 
-Create or modify you wwwroot/service-worker.js in your Blazor WASM project to import the web workers loader script.
+### wwwroot/service-worker.js
 ```js
 importScripts('_content/SpawnDev.BlazorJS.WebWorkers/spawndev.blazorjs.webworkers.js');
 ```
 
-A minimal Program.cs  
+### Program.cs
 ```cs
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 // SpawnDev.BlazorJS
@@ -35,7 +35,7 @@ builder.Services.RegisterServiceWorker<AppServiceWorker>();
 await builder.Build().BlazorJSRunAsync();
 ```
 
-Example AppServiceWorker.cs  
+### AppServiceWorker.cs - A verbose service worker example.
 - Handle ServiceWorker desired events by overriding the ServiceWorkerManager base class virtual methods.
 - The ServiceWorker event handlers are only called when running in a ServiceWorkerGlobalScope context.
 - The AppServiceWorker singleton will may run in any scope and therefore must be scope aware. (For example, do not try to use localStorage in a Worker scope.)
