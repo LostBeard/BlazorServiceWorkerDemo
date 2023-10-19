@@ -12,7 +12,7 @@ namespace BlazorServiceWorkerDemo
         }
 
         // called before any ServiceWorker events are handled
-        protected override async Task OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
             // This service will start in all scopes
             // you can do initialization based on the scope that is running
@@ -58,9 +58,9 @@ namespace BlazorServiceWorkerDemo
             Log($"ServiceWorker_OnPushAsync");
         }
 
-        protected override void OnPushSubscriptionChange(Event e)
+        protected override void ServiceWorker_OnPushSubscriptionChange(Event e)
         {
-            Log($"OnPushSubscriptionChange");
+            Log($"ServiceWorker_OnPushSubscriptionChange");
         }
 
         protected override async Task ServiceWorker_OnSyncAsync(SyncEvent e)

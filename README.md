@@ -15,9 +15,9 @@ This project relies on my other repo [SpawnDev.BlazorJS](https://github.com/Lost
 ## Quick start
 
 Add Nuget:  
-SpawnDev.BlazorJS.WebWorkers
+SpawnDev.BlazorJS.WebWorkers 2.2.20 or later
 
-Create or modify you wwwroot/service-worker.js in your Blazor WASM project. 
+Create or modify you wwwroot/service-worker.js in your Blazor WASM project to import the web workers loader script.
 ```js
 importScripts('_content/SpawnDev.BlazorJS.WebWorkers/spawndev.blazorjs.webworkers.js');
 ```
@@ -46,7 +46,7 @@ public class AppServiceWorker : ServiceWorkerManager
     }
 
     // called before any ServiceWorker events are handled
-    protected override async Task OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         // This service will start in all scopes
         // you can do initialization based on the scope that is running
@@ -92,9 +92,9 @@ public class AppServiceWorker : ServiceWorkerManager
         Log($"ServiceWorker_OnPushAsync");
     }
 
-    protected override void OnPushSubscriptionChange(Event e)
+    protected override void ServiceWorker_OnPushSubscriptionChange(Event e)
     {
-        Log($"OnPushSubscriptionChange");
+        Log($"ServiceWorker_OnPushSubscriptionChange");
     }
 
     protected override async Task ServiceWorker_OnSyncAsync(SyncEvent e)
