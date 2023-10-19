@@ -1,5 +1,7 @@
 # Blazor WASM ServiceWorker Demo
 
+Blazor WASM running as your ServiceWorker! Thanks to [SpawnDev.BlazorJS.WebWorkers](https://github.com/LostBeard/SpawnDev.BlazorJS#spawndevblazorjswebworkers) it is now possible to run Blazor WASM in all browser Worker contexts: DedicatedWorker, SharedWorker, and ServiceWorker.
+
 [Live Demo](https://lostbeard.github.io/BlazorServiceWorkerDemo/)
 
 The live demo is nothing special at the moment. In Chrome you acn see the Blazor messages from the worker handler handling events. Firefox ServiceWorker console can be found at "about:debugging#/runtime/this-firefox"
@@ -10,3 +12,4 @@ This is currently a working proof of concept and likely to change. Any and all f
 
 This project relies on my other repo [SpawnDev.BlazorJS](https://github.com/LostBeard/SpawnDev.BlazorJS) and more specifically [SpawnDev.BlazorJS.WebWorkers](https://github.com/LostBeard/SpawnDev.BlazorJS#spawndevblazorjswebworkers)
 
+## Quick start
