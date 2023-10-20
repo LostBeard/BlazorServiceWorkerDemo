@@ -4,7 +4,7 @@ Blazor WASM running as your ServiceWorker! Thanks to [SpawnDev.BlazorJS.WebWorke
 
 [Live Demo](https://lostbeard.github.io/BlazorServiceWorkerDemo/)
 
-The live demo is nothing special at the moment. In Chrome you acn see the Blazor messages from the worker handler handling events. Firefox ServiceWorker console can be found at "about:debugging#/runtime/this-firefox"
+The live demo is nothing special at the moment. In Chrome you can see the Blazor messages from the worker handler handling events. Firefox ServiceWorker console can be found at "about:debugging#/runtime/this-firefox"
 
 This code demonstrates loading a Blazor WASM inside a ServiceWorker context and handling any events a ServiceWorker may want. Like install, fetch, push, sync, etc.
 
