@@ -17,7 +17,7 @@ namespace BlazorServiceWorkerDemo
             builder.Services.AddBlazorJSRuntime();
             // SpawnDev.BlazorJS.WebWorkers
             builder.Services.AddWebWorkerService();
-            // RegisterServiceWorker a ServiceWorker handler (AppServiceWorker here) that inherits from ServiceWorkerEventHandler
+            // Register a ServiceWorker handler (AppServiceWorker here) that inherits from ServiceWorkerEventHandler
             builder.Services.RegisterServiceWorker<AppServiceWorker>();
             // Or UnregisterServiceWorker the ServiceWorker if no longer desired
             //builder.Services.UnregisterServiceWorker();
