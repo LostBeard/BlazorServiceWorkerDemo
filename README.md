@@ -20,7 +20,7 @@ Add Nuget SpawnDev.BlazorJS.WebWorkers 2.2.20 or later to the project.
 [![NuGet](https://img.shields.io/nuget/dt/SpawnDev.BlazorJS.WebWorkers.svg?label=SpawnDev.BlazorJS.WebWorkers)](https://www.nuget.org/packages/SpawnDev.BlazorJS.WebWorkers)  
 
 ### wwwroot/service-worker.js
-Create or modify to to look like the line below.
+Create or modify to match the line below.
 ```js
 importScripts('_content/SpawnDev.BlazorJS.WebWorkers/spawndev.blazorjs.webworkers.js');
 ```
