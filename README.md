@@ -43,7 +43,7 @@ await builder.Build().BlazorJSRunAsync();
 A verbose service worker implementation.
 - Handle ServiceWorker desired events by overriding the ServiceWorkerManager base class virtual methods.
 - The ServiceWorker event handlers are only called when running in a ServiceWorkerGlobalScope context.
-- The AppServiceWorker singleton will may run in any scope and therefore must be scope aware. (For example, do not try to use localStorage in a Worker scope.)
+- The AppServiceWorker singleton may run in any scope and therefore should be scope aware. (For example, do not try to use localStorage in a Worker scope.)
 ```cs
 public class AppServiceWorker : ServiceWorkerManager
 {
