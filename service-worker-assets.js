@@ -61,7 +61,7 @@
       "url": "_framework\/icudt_no_CJK.dat"
     },
     {
-      "hash": "sha256-fgDUn+\/CQVbpY+XfiBidCDds4bPhr47ct4RbM5rYFYw=",
+      "hash": "sha256-txFyLZm2uji7YohKcpePn+bniqLT\/phoCsKGDpcmsI0=",
       "url": "_framework\/blazor.boot.json"
     },
     {
@@ -69,11 +69,11 @@
       "url": "_framework\/dotnet.native.8.0.0-rc.2.23479.6.chf54js2fo.js"
     },
     {
-      "hash": "sha256-celamDTuQXPCgm4mj0cLuNpUZLPYntUJIyGHZv6INPs=",
+      "hash": "sha256-B1hU0hBk0VWIq4QtjAfjEQrEoy1yJpO45+rMK+OXtaU=",
       "url": "_framework\/dotnet.native.wasm"
     },
     {
-      "hash": "sha256-m6bSN+SD+9xYYytVyPdP+ydeJ8g9iWByXVKAwp1wKoc=",
+      "hash": "sha256-oBehsLgokxUBkLyw+1QjX\/NZbsfYqH5xyvvmNk11Vq0=",
       "url": "_framework\/BlazorServiceWorkerDemo.wasm"
     },
     {
@@ -137,11 +137,11 @@
       "url": "_framework\/Microsoft.JSInterop.WebAssembly.wasm"
     },
     {
-      "hash": "sha256-eFf35sk2BtLdx8qbnnraFAKwiIaXQWdJe1waLEDhRXw=",
+      "hash": "sha256-vbkzG\/APT3sxsOOA8AemURprIQqPv5+NgTqGiTsQlPw=",
       "url": "_framework\/SpawnDev.BlazorJS.wasm"
     },
     {
-      "hash": "sha256-IxB8RzLimRkfu91eAbCUz3Ze6cMQAQ0Lf1r3CoaTsOE=",
+      "hash": "sha256-6vpqMzkhoGjLfQ6rNTqPh\/Lo\/cv9eFB\/a5ctUoUFX5Y=",
       "url": "_framework\/SpawnDev.BlazorJS.WebWorkers.wasm"
     },
     {
@@ -197,7 +197,7 @@
       "url": "_framework\/System.ObjectModel.wasm"
     },
     {
-      "hash": "sha256-ZzDgXEzQOyjl97CevftbdUo1XDKjGipUl9f+Wc\/e9pA=",
+      "hash": "sha256-clZ03FYN4XEWfJFqCSk0nYZN0wYg5lmGSpmPQncftQA=",
       "url": "_framework\/System.Private.CoreLib.wasm"
     },
     {
@@ -213,7 +213,7 @@
       "url": "_framework\/System.Runtime.InteropServices.JavaScript.wasm"
     },
     {
-      "hash": "sha256-IUWG4iSxTODJPOaqD3APvGuUqRceAu6INda7mRaFgAw=",
+      "hash": "sha256-Qgw2K4XXMFxBdi07ZAdIA\/tD7cdeHWB6KHSHZ4JhQQU=",
       "url": "_framework\/System.Runtime.wasm"
     },
     {
@@ -245,7 +245,7 @@
       "url": "_content\/SpawnDev.BlazorJS.WebWorkers\/spawndev.blazorjs.webworkers.faux-env.js"
     },
     {
-      "hash": "sha256-ldQpxNrRoBtDV3AEmkpa0VGAzG58anAUSG0JQmAPWM4=",
+      "hash": "sha256-2xt4HQ2at+eyE6Sxw02UnHamEZ2odv\/oY5+uHgm7hOk=",
       "url": "_content\/SpawnDev.BlazorJS.WebWorkers\/spawndev.blazorjs.webworkers.js"
     },
     {
@@ -261,5 +261,5 @@
       "url": "_content\/SpawnDev.BlazorJS\/SpawnDev.BlazorJS.lib.module.js"
     }
   ],
-  "version": "0YNMUnAp"
+  "version": "ii0uNSwH"
 };

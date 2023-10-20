@@ -4,8 +4,8 @@
 // 2022 - 2023
 // SpawnDev.BlazorJS.WebWorkers
 // _content/SpawnDev.BlazorJS.WebWorkers/spawndev.blazorjs.webworkers.js
-// this script loads a fake window and DOM environment
-// and makes the Blazor WASM work in a DedicatedWorkerGlobalScope, a SharedWorkerGlobalScope and a ServiceWorkerGlobalScope
+// this script loads a fake window and document environment
+// to enable loading the Blazor WASM app in a DedicatedWorkerGlobalScope, a SharedWorkerGlobalScope or a ServiceWorkerGlobalScope
 
 var checkIfGlobalThis = function (it) {
     return it && it.Math == Math && it;
@@ -57,15 +57,15 @@ if (globalThisTypeName == 'SharedWorkerGlobalScope') {
     let missedServiceWorkerEventts = [];
     function handleMissedEvent(e) {
         if (!holdEvents) return;
-        console.log('ServiceWorker missed event:', e.type, e);
-        if (e.waitUntil) {
+        consoleLog('ServiceWorker missed event:', e.type, e);
+        if (e.waitUntil && e.type != 'fetch') {
             var waitUntilPromise = new Promise(function (resolve, reject) {
                 e.waitResolve = resolve;
                 e.waitReject = reject;
             });
             e.waitUntil(waitUntilPromise);
         }
-        if (e.respondWith) {
+        if (e.respondWith && e.type == 'fetch') {
             var responsePromise = new Promise(function (resolve, reject) {
                 e.responseResolve = resolve;
                 e.responseReject = reject;
@@ -74,9 +74,9 @@ if (globalThisTypeName == 'SharedWorkerGlobalScope') {
         }
         missedServiceWorkerEventts.push(e);
     }
+    self.addEventListener('install', handleMissedEvent);
     self.addEventListener('activate', handleMissedEvent);
     self.addEventListener('fetch', handleMissedEvent);
-    self.addEventListener('install', handleMissedEvent);
     self.addEventListener('message', handleMissedEvent);
     self.addEventListener('notificationclick', handleMissedEvent);
     self.addEventListener('notificationclose', handleMissedEvent);
