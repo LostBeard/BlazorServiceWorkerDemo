@@ -4,9 +4,9 @@ using SpawnDev.BlazorJS.WebWorkers;
 
 namespace BlazorServiceWorkerDemo
 {
-    public class AppServiceWorker : ServiceWorkerManager
+    public class AppServiceWorker : ServiceWorkerEventHandler
     {
-        public AppServiceWorker(BlazorJSRuntime js) : base(js)
+        public AppServiceWorker(BlazorJSRuntime js, ServiceWorkerConfig serviceWorkerConfig) : base(js, serviceWorkerConfig)
         {
 
         }
@@ -14,10 +14,10 @@ namespace BlazorServiceWorkerDemo
         // called before any ServiceWorker events are handled
         protected override async Task OnInitializedAsync()
         {
-            // This service will start in all scopes
+            // This service may start in any scope. This will be called before the app runs.
+            // If JS.IsWindow == true be careful not stall here.
             // you can do initialization based on the scope that is running
             Log("GlobalThisTypeName", JS.GlobalThisTypeName);
-            await Register();
         }
 
         protected override async Task ServiceWorker_OnInstallAsync(ExtendableEvent e)
