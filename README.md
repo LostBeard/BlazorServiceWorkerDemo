@@ -19,8 +19,6 @@ A very basic verbose quick start example. Create a new .Net 8 RC2 Blazor WASM pr
 Add Nuget SpawnDev.BlazorJS.WebWorkers 2.2.20 or later to the project.  
 [![NuGet](https://img.shields.io/nuget/dt/SpawnDev.BlazorJS.WebWorkers.svg?label=SpawnDev.BlazorJS.WebWorkers)](https://www.nuget.org/packages/SpawnDev.BlazorJS.WebWorkers)  
 
-
-
 ### wwwroot/service-worker.js
 Create or modify to to look like the line below.
 ```js
