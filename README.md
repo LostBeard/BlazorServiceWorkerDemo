@@ -37,7 +37,7 @@ builder.Services.AddBlazorJSRuntime();
 builder.Services.AddWebWorkerService();
 // Register a ServiceWorker handler (AppServiceWorker here) that inherits from ServiceWorkerEventHandler
 builder.Services.RegisterServiceWorker<AppServiceWorker>();
-// Or Unregister the ServiceWorker if no longer desired.
+// Or Unregister the ServiceWorker if no longer desired
 //builder.Services.UnregisterServiceWorker();
 // SpawnDev.BlazorJS startup (replaces RunAsync())
 await builder.Build().BlazorJSRunAsync();
