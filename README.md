@@ -10,7 +10,7 @@ This code demonstrates loading a Blazor WASM inside a ServiceWorker context and 
 
 This is currently a working proof of concept and likely to change. Any and all feedback is welcome!
 
-This project relies on my other repo [SpawnDev.BlazorJS](https://github.com/LostBeard/SpawnDev.BlazorJS) and more specifically [SpawnDev.BlazorJS.WebWorkers](https://github.com/LostBeard/SpawnDev.BlazorJS#spawndevblazorjswebworkers)
+This project relies on a couple of my other projects [SpawnDev.BlazorJS](https://github.com/LostBeard/SpawnDev.BlazorJS) and [SpawnDev.BlazorJS.WebWorkers](https://github.com/LostBeard/SpawnDev.BlazorJS#spawndevblazorjswebworkers)
 
 ## Quick Start
 A very basic and verbose example. Create a new .Net 8 RC2 Blazor WASM project. 
