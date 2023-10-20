@@ -6,7 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
 		<CompressionEnabled>false</CompressionEnabled>
-		<Version>2.2.22</Version>
+		<Version>2.2.25</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -20,7 +20,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0-rc.2.23480.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0-rc.2.23480.2" PrivateAssets="all" />
-		<PackageReference Include="SpawnDev.BlazorJS.WebWorkers" Version="2.2.24" />
+		<PackageReference Include="SpawnDev.BlazorJS.WebWorkers" Version="2.2.25" />
 	</ItemGroup>
 
 	<ItemGroup>

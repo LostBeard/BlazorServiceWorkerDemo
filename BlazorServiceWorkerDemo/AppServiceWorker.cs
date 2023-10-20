@@ -6,7 +6,7 @@ namespace BlazorServiceWorkerDemo
 {
     public class AppServiceWorker : ServiceWorkerEventHandler
     {
-        public AppServiceWorker(BlazorJSRuntime js, ServiceWorkerConfig serviceWorkerConfig) : base(js, serviceWorkerConfig)
+        public AppServiceWorker(BlazorJSRuntime js) : base(js)
         {
 
         }
@@ -14,9 +14,9 @@ namespace BlazorServiceWorkerDemo
         // called before any ServiceWorker events are handled
         protected override async Task OnInitializedAsync()
         {
-            // This service may start in any scope. This will be called before the app runs.
+            // By default, this service is only started in a ServiceWorker but it may start in other scopes.
             // If JS.IsWindow == true be careful not stall here.
-            // you can do initialization based on the scope that is running
+            // You can do initialization based on the scope that is running.
             Log("GlobalThisTypeName", JS.GlobalThisTypeName);
         }
 
@@ -24,6 +24,11 @@ namespace BlazorServiceWorkerDemo
         {
             Log($"ServiceWorker_OnInstallAsync");
             _ = ServiceWorkerThis!.SkipWaiting();   // returned task can be ignored
+        }
+
+        void Log(params object[] args)
+        {
+            JS.Log(new object?[] { $"ServiceWorkerEventHandler: {InstanceId}" }.Concat(args).ToArray());
         }
 
         protected override async Task ServiceWorker_OnActivateAsync(ExtendableEvent e)
