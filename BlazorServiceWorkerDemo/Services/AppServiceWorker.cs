@@ -2,7 +2,7 @@
 using SpawnDev.BlazorJS.JSObjects;
 using SpawnDev.BlazorJS.WebWorkers;
 
-namespace BlazorServiceWorkerDemo
+namespace BlazorServiceWorkerDemo.Services
 {
     public class AppServiceWorker : ServiceWorkerEventHandler
     {
@@ -24,11 +24,6 @@ namespace BlazorServiceWorkerDemo
         {
             Log($"ServiceWorker_OnInstallAsync");
             _ = ServiceWorkerThis!.SkipWaiting();   // returned task can be ignored
-        }
-
-        void Log(params object[] args)
-        {
-            JS.Log(new object?[] { $"ServiceWorkerEventHandler: {InstanceId}" }.Concat(args).ToArray());
         }
 
         protected override async Task ServiceWorker_OnActivateAsync(ExtendableEvent e)
@@ -81,6 +76,11 @@ namespace BlazorServiceWorkerDemo
         protected override async Task ServiceWorker_OnNotificationClickAsync(NotificationEvent e)
         {
             Log($"ServiceWorker_OnNotificationClickAsync");
+        }
+
+        void Log(params object[] args)
+        {
+            JS.Log(new object?[] { $"ServiceWorkerEventHandler: {InstanceId}" }.Concat(args).ToArray());
         }
     }
 }

@@ -1,4 +1,5 @@
 using BlazorServiceWorkerDemo.Components;
+using BlazorServiceWorkerDemo.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SpawnDev.BlazorJS;
@@ -17,8 +18,13 @@ namespace BlazorServiceWorkerDemo
             builder.Services.AddBlazorJSRuntime();
             // SpawnDev.BlazorJS.WebWorkers
             builder.Services.AddWebWorkerService();
-            // Register a ServiceWorker handler (AppServiceWorker here) that inherits from ServiceWorkerEventHandler
-            builder.Services.RegisterServiceWorker<AppServiceWorker>();
+
+            // Register a ServiceWorker handler (PWAServiceWorker here) that inherits from ServiceWorkerEventHandler
+            builder.Services.RegisterServiceWorker<PWAServiceWorker>();
+
+            // Or Register a ServiceWorker handler (AppServiceWorker here) that inherits from ServiceWorkerEventHandler
+            //builder.Services.RegisterServiceWorker<AppServiceWorker>();
+
             // Or UnregisterServiceWorker the ServiceWorker if no longer desired
             //builder.Services.UnregisterServiceWorker();
             // SpawnDev.BlazorJS startup (replaces RunAsync())
