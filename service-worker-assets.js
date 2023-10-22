@@ -61,7 +61,7 @@
       "url": "_framework\/icudt_no_CJK.dat"
     },
     {
-      "hash": "sha256-+o0iItTxcrvlN54DDVzcO+uK+fmxOinuA+wDReIvuLU=",
+      "hash": "sha256-rVHcktfefnvuQoSKIM9F0os7\/Au9W+t88EQMEW2dl4U=",
       "url": "_framework\/blazor.boot.json"
     },
     {
@@ -73,7 +73,7 @@
       "url": "_framework\/dotnet.native.wasm"
     },
     {
-      "hash": "sha256-t+dFgRiRocw4e5m76H2H338BNnK5UvKTi7JqK5fZFPI=",
+      "hash": "sha256-P6L0EujGuSxooap\/uRppXSvLk2m08hWUIIz+R2pe25I=",
       "url": "_framework\/BlazorServiceWorkerDemo.wasm"
     },
     {
@@ -265,5 +265,5 @@
       "url": "_content\/SpawnDev.BlazorJS\/SpawnDev.BlazorJS.lib.module.js"
     }
   ],
-  "version": "QRNM9+1j"
+  "version": "lwzO0\/1b"
 };
