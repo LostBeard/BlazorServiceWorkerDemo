@@ -34,9 +34,19 @@ namespace BlazorServiceWorkerDemo.Services
             if (self != null)
             {
                 // get the assets manifest data generated on release build and imported in the service-worker.js
-                assetsManifest = JS.Get<AssetManifest>("assetsManifest");
-                cacheName = $"{cacheNamePrefix}{assetsManifest.Version}";
-                manifestUrlList = assetsManifest!.Assets.Select(asset => new Uri(baseUri, asset.Url).ToString()).ToList();
+                try
+                {
+                    assetsManifest = JS.Get<AssetManifest>("assetsManifest");
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine($"Failed to load assetsManifest: {ex.Message}");
+                }
+                if (assetsManifest != null)
+                {
+                    cacheName = $"{cacheNamePrefix}{assetsManifest.Version}";
+                    manifestUrlList = assetsManifest!.Assets.Select(asset => new Uri(baseUri, asset.Url).ToString()).ToList();
+                }
                 caches = self.Caches;
             }
         }
@@ -45,7 +55,7 @@ namespace BlazorServiceWorkerDemo.Services
         {
             Log($"ServiceWorker_OnInstallAsync");
 
-            if (!isProduction)
+            if (!isProduction || assetsManifest == null)
             {
                 return;
             }
@@ -65,7 +75,7 @@ namespace BlazorServiceWorkerDemo.Services
         {
             Log($"ServiceWorker_OnActivateAsync");
 
-            if (!isProduction)
+            if (!isProduction || assetsManifest == null)
             {
                 return;
             }
