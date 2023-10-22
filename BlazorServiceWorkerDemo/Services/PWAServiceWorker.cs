@@ -80,7 +80,7 @@ namespace BlazorServiceWorkerDemo.Services
         protected override async Task<Response> ServiceWorker_OnFetchAsync(FetchEvent e)
         {
             Log($"ServiceWorker_OnFetchAsync", e.Request.Method, e.Request.Url);
-            Response? cachedResponse = null;
+            Response? response = null;
             if (e.Request.Method == "GET")
             {
                 // For all navigation requests, try to serve index.html from cache,
@@ -89,9 +89,20 @@ namespace BlazorServiceWorkerDemo.Services
                 var shouldServeIndexHtml = e.Request.Mode == "navigate" && !manifestUrlList!.Any(url => url == e.Request.Url);
                 var request = shouldServeIndexHtml ? new Request("index.html") : e.Request;
                 var cache = await caches!.Open(cacheName);
-                cachedResponse = await cache.Match(request);
+                response = await cache.Match(request);
             }
-            return cachedResponse ?? await JS.Fetch(e.Request);
+            if (response == null)
+            {
+                try
+                {
+                    response = await JS.Fetch(e.Request);
+                }
+                catch (Exception ex)
+                {
+                    response = new Response(ex.Message, new ResponseOptions { Status = 500, StatusText = ex.Message, Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" } } });
+                }
+            }
+            return response;
         }
 
         protected override async Task ServiceWorker_OnMessageAsync(ExtendableMessageEvent e)
