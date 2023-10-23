@@ -19,6 +19,8 @@ namespace BlazorServiceWorkerDemo
             // SpawnDev.BlazorJS.WebWorkers
             builder.Services.AddWebWorkerService();
 
+            builder.Services.AddScoped((sp) => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
             // Register a ServiceWorker handler (PWAServiceWorker here) that inherits from ServiceWorkerEventHandler
             builder.Services.RegisterServiceWorker<PWAServiceWorker>();
 
