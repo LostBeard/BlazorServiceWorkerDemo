@@ -27,21 +27,14 @@ namespace BlazorServiceWorkerDemo.Services
         // called before any ServiceWorker events are handled
         protected override async Task OnInitializedAsync()
         {
-            // By default, this service is only started in a ServiceWorker but it may start in other scopes if used for dependency injection.
+            // By default, this service is only started in a ServiceWorker but it may start in other scopes if injected into another service.
             // You can do initialization based on the scope that is running.
             Log("GlobalThisTypeName:", JS.GlobalThisTypeName, "Production:", isProduction);
             self = JS.ServiceWorkerThis;
             if (self != null)
             {
                 // get the assets manifest data generated on release build and imported in the service-worker.js
-                try
-                {
-                    assetsManifest = JS.Get<AssetManifest>("assetsManifest");
-                }
-                catch(Exception ex)
-                {
-                    Console.WriteLine($"Failed to load assetsManifest: {ex.Message}");
-                }
+                assetsManifest = JS.Get<AssetManifest?>("assetsManifest");
                 if (assetsManifest != null)
                 {
                     cacheName = $"{cacheNamePrefix}{assetsManifest.Version}";
