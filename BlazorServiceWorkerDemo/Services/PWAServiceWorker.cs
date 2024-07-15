@@ -72,9 +72,13 @@ namespace BlazorServiceWorkerDemo.Services
             }
 
             // optionally skip waiting and claim all clients
+
+            JS.Log(". ServiceWorker_OnInstallAsync", self);
             await self!.SkipWaiting();
             using var clients = self.Clients;
+            JS.Log(".. ServiceWorker_OnInstallAsync", clients);
             await clients.Claim();
+            JS.Log("< ServiceWorker_OnInstallAsync");
         }
 
         protected override async Task ServiceWorker_OnActivateAsync(ExtendableEvent e)
