@@ -16,7 +16,10 @@ builder.Services.AddWebWorkerService();
 builder.Services.AddScoped((sp) => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 // Register a ServiceWorker handler (PWAServiceWorker here) that inherits from ServiceWorkerEventHandler
-builder.Services.RegisterServiceWorker<PWAServiceWorker>(); // (new ServiceWorkerConfig { ScriptURL = "spawndev.blazorjs.webworkers.js?verbose=1" });
+builder.Services.RegisterServiceWorker<PWAServiceWorker>(new ServiceWorkerConfig
+{
+    ImportServiceWorkerAssets = true,
+});
 
 if (JS.IsWindow)
 {

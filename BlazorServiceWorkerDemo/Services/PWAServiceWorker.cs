@@ -22,7 +22,6 @@ namespace BlazorServiceWorkerDemo.Services
         {
             baseUri = new Uri(navigationManager.BaseUri);
             isProduction = hostEnvironment.IsProduction();
-            isProduction = true;
         }
 
         // called before any ServiceWorker events are handled
@@ -39,6 +38,7 @@ namespace BlazorServiceWorkerDemo.Services
                 if (assetsManifest != null)
                 {
                     cacheName = $"{cacheNamePrefix}{assetsManifest.Version}";
+                    Log("Offline cache name:", cacheName);
                     manifestUrlList = assetsManifest!.Assets.Select(asset => new Uri(baseUri, asset.Url).ToString()).ToList();
                 }
                 caches = self.Caches;
@@ -54,15 +54,23 @@ namespace BlazorServiceWorkerDemo.Services
                 return;
             }
 
-            // Fetch and cache all matching items from the assets manifest
-            var assetsRequests = assetsManifest!.Assets
-                .Where(asset => offlineAssetsInclude.Any(o => asset.Url.EndsWith(o)))
-                .Where(asset => !offlineAssetsExclude.Any(o => asset.Url.Equals(o)))
-                .Select(asset => new Request(asset.Url, new RequestOptions { Integrity = asset.Hash, Cache = "no-cache" }))
-                .ToList();
+            try
+            {
+                // Fetch and cache all matching items from the assets manifest
+                var assetsRequests = assetsManifest!.Assets
+                    .Where(asset => offlineAssetsInclude.Any(o => asset.Url.EndsWith(o)))
+                    .Where(asset => !offlineAssetsExclude.Any(o => asset.Url.Equals(o)))
+                    .Select(asset => new Request(asset.Url, new RequestOptions { Integrity = asset.Hash, Cache = "no-cache" }))
+                    .ToList();
 
-            var cache = await caches!.Open(cacheName);
-            await cache.AddAll(assetsRequests);
+                var cache = await caches!.Open(cacheName);
+                await cache.AddAll(assetsRequests);
+                Log("Cached:", cacheName);
+            }
+            catch (Exception ex)
+            {
+                Log("Failed to cache:", cacheName);
+            }
         }
 
         protected override async Task ServiceWorker_OnActivateAsync(ExtendableEvent e)

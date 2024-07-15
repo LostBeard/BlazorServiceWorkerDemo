@@ -51,7 +51,7 @@ A verbose service worker implementation.
 ```cs
 public class AppServiceWorker : ServiceWorkerEventHandler
 {
-    public AppServiceWorker(BlazorJSRuntime js, ServiceWorkerConfig serviceWorkerConfig) : base(js, serviceWorkerConfig)
+    public AppServiceWorker(BlazorJSRuntime js) : base(js)
     {
 
     }
