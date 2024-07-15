@@ -1,3 +1,2 @@
-
-importScripts('./service-worker-assets.js');
-importScripts('./_content/SpawnDev.BlazorJS.WebWorkers/spawndev.blazorjs.webworkers.js');
+﻿// Not used. Placeholder to prevent an error when building with <ServiceWorkerAssetsManifest> in Blazor .csproj project file
+// This allows asset manifest generation, but the SpawnDev.BlazorJS.WebWorkers ServiceWorker will be used instead of this

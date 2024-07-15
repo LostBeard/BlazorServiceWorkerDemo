@@ -22,6 +22,7 @@ namespace BlazorServiceWorkerDemo.Services
         {
             baseUri = new Uri(navigationManager.BaseUri);
             isProduction = hostEnvironment.IsProduction();
+            isProduction = true;
         }
 
         // called before any ServiceWorker events are handled
@@ -67,6 +68,10 @@ namespace BlazorServiceWorkerDemo.Services
         protected override async Task ServiceWorker_OnActivateAsync(ExtendableEvent e)
         {
             Log($"ServiceWorker_OnActivateAsync");
+            // optionally skip waiting and claim all clients
+            await self!.SkipWaiting();
+            using var clients = self.Clients;
+            await clients.Claim();
 
             if (!isProduction || assetsManifest == null)
             {
@@ -84,7 +89,7 @@ namespace BlazorServiceWorkerDemo.Services
         {
             Log($"ServiceWorker_OnFetchAsync", e.Request.Method, e.Request.Url);
             Response? response = null;
-            if (e.Request.Method == "GET")
+            if (e.Request.Method == "GET" && assetsManifest != null)
             {
                 // For all navigation requests, try to serve index.html from cache,
                 // unless that request is for an offline resource.
@@ -93,15 +98,21 @@ namespace BlazorServiceWorkerDemo.Services
                 var request = shouldServeIndexHtml ? new Request("index.html") : e.Request;
                 var cache = await caches!.Open(cacheName);
                 response = await cache.Match(request);
+                if (response != null)
+                {
+                    Log("Cached response used:", cacheName, e.Request.Method, e.Request.Url);
+                }
             }
             if (response == null)
             {
                 try
                 {
                     response = await JS.Fetch(e.Request);
+                    Log("Live response used:", e.Request.Method, e.Request.Url);
                 }
                 catch (Exception ex)
                 {
+                    Log("Failed response used:", e.Request.Method, e.Request.Url);
                     response = new Response(ex.Message, new ResponseOptions { Status = 500, StatusText = ex.Message, Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" } } });
                 }
             }
@@ -140,7 +151,7 @@ namespace BlazorServiceWorkerDemo.Services
 
         void Log(params object[] args)
         {
-            JS.Log(new object?[] { $"ServiceWorkerEventHandler: {InstanceId}" }.Concat(args).ToArray());
+            JS.Log(new object?[] { $"ServiceWorkerEventHandler: {JS.InstanceId}" }.Concat(args).ToArray());
         }
     }
 }

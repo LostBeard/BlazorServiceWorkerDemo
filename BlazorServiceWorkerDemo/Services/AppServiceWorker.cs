@@ -80,7 +80,7 @@ namespace BlazorServiceWorkerDemo.Services
 
         void Log(params object[] args)
         {
-            JS.Log(new object?[] { $"ServiceWorkerEventHandler: {InstanceId}" }.Concat(args).ToArray());
+            JS.Log(new object?[] { $"ServiceWorkerEventHandler: {JS.InstanceId}" }.Concat(args).ToArray());
         }
     }
 }

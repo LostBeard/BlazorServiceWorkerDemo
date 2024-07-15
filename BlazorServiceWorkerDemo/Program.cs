@@ -5,32 +5,33 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SpawnDev.BlazorJS;
 using SpawnDev.BlazorJS.WebWorkers;
 
-namespace BlazorServiceWorkerDemo
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
+// SpawnDev.BlazorJS
+builder.Services.AddBlazorJSRuntime(out var JS);
+// SpawnDev.BlazorJS.WebWorkers
+builder.Services.AddWebWorkerService();
+
+builder.Services.AddScoped((sp) => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+// Register a ServiceWorker handler (PWAServiceWorker here) that inherits from ServiceWorkerEventHandler
+builder.Services.RegisterServiceWorker<PWAServiceWorker>(); // (new ServiceWorkerConfig { ScriptURL = "spawndev.blazorjs.webworkers.js?verbose=1" });
+
+if (JS.IsWindow)
 {
-    public class Program
-    {
-        public static async Task Main(string[] args)
-        {
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<App>("#app");
-            builder.RootComponents.Add<HeadOutlet>("head::after");
-            // SpawnDev.BlazorJS
-            builder.Services.AddBlazorJSRuntime();
-            // SpawnDev.BlazorJS.WebWorkers
-            builder.Services.AddWebWorkerService();
-
-            builder.Services.AddScoped((sp) => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
-            // Register a ServiceWorker handler (PWAServiceWorker here) that inherits from ServiceWorkerEventHandler
-            builder.Services.RegisterServiceWorker<PWAServiceWorker>();
-
-            // Or Register a ServiceWorker handler (AppServiceWorker here) that inherits from ServiceWorkerEventHandler
-            //builder.Services.RegisterServiceWorker<AppServiceWorker>();
-
-            // Or UnregisterServiceWorker the ServiceWorker if no longer desired
-            //builder.Services.UnregisterServiceWorker();
-            // SpawnDev.BlazorJS startup (replaces RunAsync())
-            await builder.Build().BlazorJSRunAsync();
-        }
-    }
+    JS.Log("IsWindow");
 }
+else if (JS.IsServiceWorkerGlobalScope)
+{
+    JS.Log("IsServiceWorkerGlobalScope");
+}
+
+// Or Register a ServiceWorker handler (AppServiceWorker here) that inherits from ServiceWorkerEventHandler
+//builder.Services.RegisterServiceWorker<AppServiceWorker>();
+
+// Or UnregisterServiceWorker the ServiceWorker if no longer desired
+//builder.Services.UnregisterServiceWorker();
+// SpawnDev.BlazorJS startup (replaces RunAsync())
+await builder.Build().BlazorJSRunAsync();
+
