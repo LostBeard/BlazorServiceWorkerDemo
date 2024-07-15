@@ -71,7 +71,7 @@ namespace BlazorServiceWorkerDemo.Services
                 }
             }
             // optionally skip waiting
-            Log($"self.SkipWaiting() !");
+            Log($"self.SkipWaiting()");
             await self!.SkipWaiting();
         }
 
@@ -89,7 +89,7 @@ namespace BlazorServiceWorkerDemo.Services
                     .Select(key => caches.Delete(key)));
             }
             // optionally claim all clients
-            Log($"clients.Claim() !");
+            Log($"clients.Claim()");
             using var clients = self!.Clients;
             await clients.Claim();
         }
