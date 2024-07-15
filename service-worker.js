@@ -2,4 +2,4 @@
 // This allows asset manifest generation, but the SpawnDev.BlazorJS.WebWorkers ServiceWorker will be used instead of this
 
 
-/* Manifest version: 65OGoxen */
+/* Manifest version: s9+dtGtF */
