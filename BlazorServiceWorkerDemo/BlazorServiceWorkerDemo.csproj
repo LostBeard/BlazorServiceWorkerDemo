@@ -37,7 +37,8 @@
 		- false - patch at runtime (current default)
 		- true  - patch during build
 		-->
-		<WebWorkerPatchFramework>true</WebWorkerPatchFramework>
+		<!-- In this demo we leave this set to false because if we do build time patching, we also need to patch the asset manifest which is not supported ATM -->
+		<WebWorkerPatchFramework>false</WebWorkerPatchFramework>
 	</PropertyGroup>
 
 </Project>
