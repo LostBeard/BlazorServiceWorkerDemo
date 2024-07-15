@@ -71,14 +71,8 @@ namespace BlazorServiceWorkerDemo.Services
                 }
             }
 
-            // optionally skip waiting and claim all clients
-
-            JS.Log(". ServiceWorker_OnInstallAsync", self);
+            // optionally skip waiting
             await self!.SkipWaiting();
-            using var clients = self.Clients;
-            JS.Log(".. ServiceWorker_OnInstallAsync", clients);
-            await clients.Claim();
-            JS.Log("< ServiceWorker_OnInstallAsync");
         }
 
         protected override async Task ServiceWorker_OnActivateAsync(ExtendableEvent e)
@@ -94,6 +88,9 @@ namespace BlazorServiceWorkerDemo.Services
                     .Where(key => key.StartsWith(cacheNamePrefix) && key != cacheName)
                     .Select(key => caches.Delete(key)));
             }
+            // optionally claim all clients
+            using var clients = self!.Clients;
+            await clients.Claim();
         }
 
         protected override async Task<Response> ServiceWorker_OnFetchAsync(FetchEvent e)
