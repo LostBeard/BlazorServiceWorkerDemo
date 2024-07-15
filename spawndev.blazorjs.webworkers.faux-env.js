@@ -20,7 +20,7 @@ function createProxiedObject(obj, useIfDefined) {
             var keyIsSymbolIterator = key == Symbol.iterator;
             var keyIsSymbol = typeofKey === 'symbol';
             var keyStr = keyIsSymbol ? key.toString() : key;
-            consoleLog('get', target.constructor.name, keyStr, ret && ret.constructor ? ret.constructor.name : typeofProp, typeofProp !== 'function' ? ret : '(){ ... }');
+            //consoleLog('get', target.constructor.name, keyStr, ret && ret.constructor ? ret.constructor.name : typeofProp, typeofProp !== 'function' ? ret : '(){ ... }');
             if (propIsUndefined) {
                 var getKey = target.constructor.name + '.' + keyStr;
                 if (!undefinedGets[getKey]) {
@@ -278,7 +278,7 @@ class Document extends Node {
             consoleLog('Loading script text');
             try {
                 let fn = new Function(node.text);
-                fn.apply(globalThisObj, []);
+                fn.apply(self, []);
                 if (node.onload) node.onload();
             } catch (ex) {
                 console.error('ERROR loading document script', href, ex);
@@ -286,7 +286,7 @@ class Document extends Node {
             }
         } else if (node.src) {
             consoleLog('Loading script src');
-            var href = new URL(node.src, this.baseURI);
+            var href = new URL(node.src, this.baseURI).toString();
             try {
                 importScripts(href);
                 if (node.onload) node.onload();
@@ -371,6 +371,7 @@ class Document extends Node {
         return null;
     }
     querySelectorAll(selector) {
+        // this method is not expeceted to work 100% as it is needed to just fake a document not truly implememnt one perfectly
         var ret = [];
         consoleLog(this.constructor.name, 'querySelectorAll', selector);
         var nodes = this.descendants();
@@ -396,6 +397,10 @@ class Document extends Node {
     addGlobalListener() {
         consoleLog(this.constructor.name, 'addGlobalListener');
 
+    }
+    get scripts() {
+        var nodes = this.descendants().filter(o => o.constructor.name === 'HTMLScriptElement');
+        return nodes;
     }
     get currentScript() {
         consoleLog(this.constructor.name, 'currentScript');
@@ -746,21 +751,21 @@ class NavigationFake extends EventTargetFake {
 
 
 (function () {
-    if (typeof globalThisObj.document !== 'undefined') {
+    if (typeof self.document !== 'undefined') {
         return;
     }
     var history = createProxiedObject(new History());
     var document = createProxiedObject(new HTMLDocument());
     // assign a proxied globaThis to window
-    globalThisObj.window = createProxiedObject(self, new WindowFake());
-    globalThisObj.navigation = createProxiedObject(self, new NavigationFake());
-    globalThisObj.window.parent = globalThisObj.window;
-    globalThisObj.history = history;
-    globalThisObj.document = document;
-    globalThisObj.localStorage = createProxiedObject(new WebStorage());
-    globalThisObj.sessionStorage = createProxiedObject(new WebStorage());
-    globalThisObj.devicePixelRatio = 1;
-    globalThisObj.screen = {
+    self.window = createProxiedObject(self, new WindowFake());
+    self.navigation = createProxiedObject(self, new NavigationFake());
+    self.window.parent = self.window;
+    self.history = history;
+    self.document = document;
+    self.localStorage = createProxiedObject(new WebStorage());
+    self.sessionStorage = createProxiedObject(new WebStorage());
+    self.devicePixelRatio = 1;
+    self.screen = {
         availHeight: 1050,
         availLeft: 3840,
         availTop: 0,
@@ -777,7 +782,7 @@ class NavigationFake extends EventTargetFake {
         pixelDepth: 24,
         width: 1920,
     };
-    globalThisObj.customElements = createProxiedObject({
+    self.customElements = createProxiedObject({
         elements: {},
         define: function (name, constructor, options) {
             consoleLog('customElements.define:', name);
@@ -788,7 +793,7 @@ class NavigationFake extends EventTargetFake {
         }
     });
     // document.baseURI (defaults to worker directory here, can be set later)
-    var href = globalThisObj.location.href;
+    var href = self.location.href;
     var webWorkerContentDir = href.substring(0, href.lastIndexOf('/') + 1);
     document.baseURI = webWorkerContentDir;
 })();

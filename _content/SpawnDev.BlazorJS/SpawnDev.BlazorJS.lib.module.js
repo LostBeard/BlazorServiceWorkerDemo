@@ -1,32 +1,12 @@
-'use strict';
-// https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/?view=aspnetcore-7.0#inject-a-script-after-blazor-starts
-
-// get the globalThis instance
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
-function checkIfGlobalThis(it) {
-    // Math is known to exist as a global in every environment.
-    return it && it.Math === Math && it;
-}
-
-const globalObject =
-    // eslint-disable-next-line es/no-global-this -- safe
-    checkIfGlobalThis(typeof globalThis == 'object' && globalThis) ||
-    checkIfGlobalThis(typeof window == 'object' && window) ||
-    // eslint-disable-next-line no-restricted-globals -- safe
-    checkIfGlobalThis(typeof self == 'object' && self) ||
-    checkIfGlobalThis(typeof global == 'object' && global) ||
-    // eslint-disable-next-line no-new-func -- fallback
-    (function () { return this; })() || Function('return this')();
-
-var initFunc = function () {
-    if (globalObject.JSInterop) return;
+(() => {
+    if (globalThis.JSInterop) return;
     const JSInterop = {};
-    globalObject.JSInterop = JSInterop;
-    JSInterop.globalObject = globalObject;
+    globalThis.JSInterop = JSInterop;
+    JSInterop.globalThis = globalThis;
     JSInterop.debugLevel = 0;
     JSInterop.pathObjectInfo = function (rootObject, path) {
         if (rootObject === null || rootObject === void 0) {
-            // callers must call with the globalObject if they wish to use it as the rootObject.
+            // callers must call with the globalThis if they wish to use it as the rootObject.
             throw new DOMException('JSInterop.pathObjectInfo error: rootObject cannot be null');
         }
         var parent = rootObject;
@@ -69,7 +49,7 @@ var initFunc = function () {
 
     JSInterop.setPromiseThenCatch = function (promise, thenCallback, catchCallback) {
         promise.then(thenCallback).catch(function (ex) {
-            let err = "";
+            var err = "";
             if (ex) {
                 if (typeof ex == 'string') {
                     err = ex;
@@ -93,7 +73,7 @@ var initFunc = function () {
     };
 
     JSInterop._returnNew = function (obj, className, args, returnType) {
-        if (obj === null) obj = globalObject;
+        if (obj === null) obj = globalThis;
         var { target, parent, targetType } = JSInterop.pathObjectInfo(obj, className);
         var ret = !args ? new target() : new target(...args);
         return serializeToDotNet(ret, returnType);
@@ -180,16 +160,11 @@ var initFunc = function () {
             typeOfValue = 'object';
             value = null;
         }
-        //else if (typeOfValue === 'function') {
-        //    value = wrapFunction(value);
-        //} else if (typeOfValue === 'symbol') {
-        //    value = wrapSymbol(value);
-        //}
         if (!returnType) {
             return value;
         }
-        let isOverridden = returnType >= 128;
-        let desiredType = isOverridden ? returnType - 128 : returnType;
+        var isOverridden = returnType >= 128;
+        var desiredType = isOverridden ? returnType - 128 : returnType;
         switch (desiredType) {
             case DotNet.JSCallResultType.Default:
                 break;
@@ -208,7 +183,7 @@ var initFunc = function () {
         if (!isOverridden) {
             return value;
         }
-        // overridden so we must serialize it here
+        // overridden so serialize it here
         switch (desiredType) {
             case DotNet.JSCallResultType.Default:
                 return value;
@@ -216,9 +191,10 @@ var initFunc = function () {
                 return value === null ? null : DotNet.createJSObjectReference(value);
             case DotNet.JSCallResultType.JSStreamReference:
                 {
+                    // TODO test and fix if needed
                     const n = DotNet.createJSStreamReference(value);
                     const r = JSON.stringify(n);
-                    return ct.js_string_to_mono_string(r)
+                    return BINDING.js_string_to_mono_string(r)
                 }
             case DotNet.JSCallResultType.JSVoidResult:
                 return null;
@@ -226,6 +202,19 @@ var initFunc = function () {
                 throw new Error(`Invalid JS call result type '${a}'.`)
         }
     }
+
+    function createJSObjectReference(o){
+        let mustWrap = createJSObjectReferenceMustWrapType(o);
+        if (mustWrap) o = wrapJSObject(o);
+        return DotNet.createJSObjectReference(o);
+    }
+
+    JSInterop._returnArrayJSObjectReferenceIds = function (obj) {
+        if (obj === null || obj === void 0) return null;
+        var ret = [];
+        for (var o of obj) ret.push(o === null || o === void 0 ? -1 : createJSObjectReference(o).__jsObjectId);
+        return ret;
+    };
 
     // Instance
     JSInterop._set = function (obj, identifier, value) {
@@ -268,27 +257,27 @@ var initFunc = function () {
 
     //Global
     JSInterop._instanceofGlobal = function (identifier) {
-        return JSInterop._instanceof(globalObject, identifier);
+        return JSInterop._instanceof(globalThis, identifier);
     };
 
     JSInterop._typeofGlobal = function (identifier) {
-        return JSInterop._typeof(globalObject, identifier);
+        return JSInterop._typeof(globalThis, identifier);
     };
 
     JSInterop._setGlobal = function (identifier, value) {
-        JSInterop._set(globalObject, identifier, value);
+        JSInterop._set(globalThis, identifier, value);
     };
 
     JSInterop._deleteGlobal = function (identifier) {
-        JSInterop._delete(globalObject, identifier);
+        JSInterop._delete(globalThis, identifier);
     };
 
     JSInterop._getGlobal = function (identifier, returnType) {
-        return JSInterop._get(globalObject, identifier, returnType);
+        return JSInterop._get(globalThis, identifier, returnType);
     };
 
     JSInterop._callGlobal = function (identifier, args, returnType) {
-        return JSInterop._call(globalObject, identifier, args, returnType);
+        return JSInterop._call(globalThis, identifier, args, returnType);
     };
 
     const callbacks = {};
@@ -296,69 +285,52 @@ var initFunc = function () {
         if (callbacks[callbackerID]) delete callbacks[callbackerID];
     };
     DotNet.attachReviver(function (key, value) {
-        if (value && typeof value === 'object' && typeof value.__undefinedref__ !== 'undefined') {
-            return;
-        }
-        else if (value && typeof value === 'object' && typeof value.__wrappedFunction === 'function') {
-            return value.__wrappedFunction;
-        }
-        else if (value && typeof value === 'object' && typeof value.__wrappedSymbol === 'symbol') {
-            return value.__wrappedSymbol;
-        }
-        else if (value && typeof value === 'object' && typeof value.__wrappedJSObject !== 'undefined') {
-            return value.__wrappedJSObject;
-        }
-        else if (value && typeof value === 'object' && typeof value._callbackId !== 'undefined') {
-            let callbackId = value._callbackId;
-            if (!callbacks[callbackId]) {
-                callbacks[callbackId] = function fn() {
+        if (value && typeof value === 'object') {
+            if ('_callbackId' in value) {
+                var callbackId = value._callbackId;
+                var callback = callbacks[callbackId];
+                if (callback) return callback;
+                callback = function fn() {
+                    if (callback !== callbacks[callbackId]) {
+                        console.warn('Disposed callback called.');
+                        return;
+                    }
                     var ret = null;
-                    if (!callbacks[callbackId] || fn !== callbacks[callbackId]) return;
                     var args = ["Invoke"];
-                    // When the Callback is created the argument types are enumerated so they can be passed back to .Net correctly when the callback is called
                     var paramTypes = value._paramTypes;
                     for (var i = 0; i < paramTypes.length; i++) {
                         var v = i < arguments.length ? arguments[i] : null;
-                        let jsCallResultType = paramTypes[i];
+                        var jsCallResultType = paramTypes[i];
                         v = serializeToDotNet(v, jsCallResultType);
                         args.push(v);
                     }
                     try {
-                        ret = value._callback.invokeMethod.apply(value._callback, args);// ('Callback.Invoke');
-                        if (!value._returnVoid) {
-                            return ret;
-                        }
+                        ret = value._callback.invokeMethod.apply(value._callback, args);
+                        if (!value._returnVoid) return ret;
                     } catch (ex) {
                         console.error('Callback invokeMethod error:', args, ret, ex);
-                        //console.log('disposing callback');
-                        //value.isDisposed = true;    //
+                        //value.isDisposed = true;
                         //DisposeCallbacker(callbackId);
                     }
                 };
+                callbacks[callbackId] = callback;
+                return callback;
             }
-            return callbacks[callbackId];
-        } else {
-            return value;
+            else if ('__wrappedJSObject' in value) {
+                return value.__wrappedJSObject;
+            }
+            else if ('__undefinedref__' in value) {
+                return;
+            }
+            else if ('$bigint' in value) {
+                return BigInt(value.$bigint);
+            }
         }
+        return value;
     });
-};
-initFunc();
-
-
-//export function beforeStart(options, extensions) {
-//    console.log("blazorjs beforeStart");
-//}
-
-//export function afterStarted(blazor) {
-
-//    Object.defineProperty(Blazor, 'DotNet', {
-//        value: globalThis.DotNet,
-//        writable: false,
-//    });
-//    ////console.log("blazorjs afterStarted");
-//    //if (typeof JSInterop._afterStarted === 'function') {
-//    //    let callback = JSInterop._afterStarted;
-//    //    delete JSInterop._afterStarted;
-//    //    callback();
-//    //}
-//}
+    // Below code adds support for serializing BigInt
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json
+    BigInt.prototype.toJSON = function () {
+        return { $bigint: this.toString() };
+    };
+})();

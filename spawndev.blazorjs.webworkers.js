@@ -3,29 +3,36 @@
 // Todd Tanner
 // 2022 - 2023
 // SpawnDev.BlazorJS.WebWorkers
-// _content/SpawnDev.BlazorJS.WebWorkers/spawndev.blazorjs.webworkers.js
+// spawndev.blazorjs.webworkers.js
+// Update 2024-07-15: this script will now be copied to the app wwwroot path instead of the rcl _content path (wwwroot/_content/SpawnDev.BlazorJS.WebWorkers/spawndev.blazorjs.webworkers.js)
 // this script loads a fake window and document environment
 // to enable loading the Blazor WASM app in a DedicatedWorkerGlobalScope, SharedWorkerGlobalScope or ServiceWorkerGlobalScope
 
-var checkIfGlobalThis = function (it) {
-    return it && it.Math == Math && it;
-};
-
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
-const globalThisObj =
-    // eslint-disable-next-line es/no-global-this -- safe
-    checkIfGlobalThis(typeof globalThis == 'object' && globalThis) ||
-    checkIfGlobalThis(typeof window == 'object' && window) ||
-    // eslint-disable-next-line no-restricted-globals -- safe
-    checkIfGlobalThis(typeof self == 'object' && self) ||
-    checkIfGlobalThis(typeof global == 'object' && global) ||
-    // eslint-disable-next-line no-new-func -- fallback
-    (function () { return this; })() || Function('return this')();
-
-const globalThisTypeName = globalThisObj.constructor.name;
-
+var globalThisTypeName = self.constructor.name;
 var disableHotReload = true;
-var verboseWebWorkers = location.search.indexOf('verbose=true') > -1;
+
+function getParameterByName(name, url = location.href) {
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+var queryParams = new Proxy({}, {
+    get: (orig, prop) => getParameterByName(prop),
+});
+
+// a query param can be used to set the index.html file url
+var indexHtml = queryParams.indexHtml ?? './';
+if (typeof indexHtml === 'string' && ['true','1'].indexOf(indexHtml.toLowerCase()) !== -1) indexHtml = 'index.html';
+// below switches the indexHtml path to index.html if running in a browser extension
+var browserExtension = (self.browser && self.browser.runtime && self.browser.runtime.id) || (self.chrome && self.chrome.runtime && self.chrome.runtime.id) || location.href.indexOf('chrome-extension') === 0;
+if (browserExtension) indexHtml = 'index.html';
+
+var verboseWebWorkers = !!queryParams.verbose;
+var debugMode = !!queryParams.debugMode;
+var isServiceWorkerScope = globalThisTypeName == 'ServiceWorkerGlobalScope';
 
 var consoleLog = function () {
     if (!verboseWebWorkers) return;
@@ -43,16 +50,19 @@ if (globalThisTypeName == 'SharedWorkerGlobalScope') {
     // important for SharedWorker
     // catch any incoming connetions that happen while .Net is loading
     let _missedConnections = [];
-    globalThisObj.takeOverOnConnectEvent = function (newConnectFunction) {
+    self.takeOverOnConnectEvent = function (newConnectFunction) {
         var tmp = _missedConnections;
         _missedConnections = [];
-        globalThisObj.onconnect = newConnectFunction;
+        self.onconnect = newConnectFunction;
         return tmp;
     }
-    globalThisObj.onconnect = function (e) {
+    self.onconnect = function (e) {
         _missedConnections.push(e.ports[0]);
     };
 } else if (globalThisTypeName == 'ServiceWorkerGlobalScope') {
+    // Starting Blazor requries using importScripts inside async functions
+    // e.waitUntil is used during the install event to allow importScripts inside async functions
+    // it is resolved after loading is complete
     let holdEvents = true;
     let missedServiceWorkerEventts = [];
     function handleMissedEvent(e) {
@@ -83,7 +93,8 @@ if (globalThisTypeName == 'SharedWorkerGlobalScope') {
     self.addEventListener('push', handleMissedEvent);
     self.addEventListener('pushsubscriptionchange', handleMissedEvent);
     self.addEventListener('sync', handleMissedEvent);
-    globalThisObj.GetMissedServiceWorkerEvents = function () {
+    // This method will be called by Blazor WASM when it starts up to collect missed events and handle them
+    self.GetMissedServiceWorkerEvents = function () {
         holdEvents = false;
         var ret = missedServiceWorkerEventts;
         missedServiceWorkerEventts = [];
@@ -108,27 +119,32 @@ var documentBaseURI = (function () {
     return uri.toString();
 })();
 consoleLog('documentBaseURI', documentBaseURI);
-const webWorkersContent = new URL(`_content/SpawnDev.BlazorJS.WebWorkers/`, documentBaseURI).toString();
+
+function getAppURL(relativePath) {
+    return new URL(relativePath, documentBaseURI).toString();
+}
+function getBWWURL(relativePath) {
+    return new URL(relativePath, documentBaseURI).toString();
+}
 consoleLog('spawndev.blazorjs.webworkers: loading fake window environment');
 // faux DOM and document environment
 //importScripts('spawndev.blazorjs.webworkers.faux-env.js');
-importScripts(new URL('spawndev.blazorjs.webworkers.faux-env.js', webWorkersContent).toString());
+importScripts(getBWWURL('spawndev.blazorjs.webworkers.faux-env.js'));
 // faux dom and window environment has been created (currently empty)
 // set document.baseURI to the apps basePath (which is relative to this scripts path)
 document.baseURI = documentBaseURI;
 if (disableHotReload) {
-    consoleLog('disabling hot reload on this thread');
-    const scriptInjectedSentinel = '_dotnet_watch_ws_injected'
-    globalThisObj[scriptInjectedSentinel] = true
+    self._dotnet_watch_ws_injected = true;
 }
 
+// dynamic import support tested using an empty script
 async function hasDynamicImport() {
-    // ServiceWorkers have issues with dynamic imports even if detection says it is supported 
+    // import() is disallowed on ServiceWorkerGlobalScope by the HTML specification.See https://github.com/w3c/ServiceWorker/issues/1356.
     if (globalThisTypeName == 'ServiceWorkerGlobalScope') {
         return false;
     }
     try {
-        await import('data:text/javascript;base64,Cg==');
+        await import(getBWWURL('spawndev.blazorjs.webworkers.empty.js'));
         return true;
     } catch (e) {
         return false;
@@ -136,24 +152,14 @@ async function hasDynamicImport() {
 }
 
 var initWebWorkerBlazor = async function () {
-    var WebWorkerEnabledAttributeName = 'webworker-enabled';
-    var dynamicImportSupported = await hasDynamicImport();
-    // Firefox, and possibly some other browsers, do not support dynamic module import (import) in workers.
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1540913
-    // Some scripts will have to be patched on the fly if import is not supported.
-    if (!dynamicImportSupported) {
-        consoleLog("import is not supported. A workaround will be used.");
-    } else {
-        consoleLog('import is supported.');
-    }
-    // patch globalThisObj.fetch to use document.baseURI for the relative path base path
+    // patch self.fetch to use document.baseURI for the relative path base path
     if (documentBaseURIIsModified) {
-        let fetchOrig = globalThisObj.fetch;
-        globalThisObj.fetch = function (resource, options) {
+        let fetchOrig = self.fetch;
+        self.fetch = function (resource, options) {
             consoleLog("webWorkersFetch", typeof resource, resource);
             if (typeof resource === 'string') {
                 // resource is a string
-                let newUrl = new URL(resource, document.baseURI);
+                let newUrl = getAppURL(resource);
                 return fetchOrig(newUrl, options);
             } else {
                 // resource is a Request object
@@ -164,8 +170,17 @@ var initWebWorkerBlazor = async function () {
     }
     // fetch getText method
     async function getText(href) {
-        var response = await fetch(new URL(href, document.baseURI));
+        var response = await fetch(getAppURL(href));
         return await response.text();
+    }
+    // TODO - detect pre-patched framework or read a config file that indicates state
+    var WebWorkerEnabledAttributeName = 'webworker-enabled';
+    // detect if we need to use a patched framework
+    var dynamicImportSupported = await hasDynamicImport();
+    if (!dynamicImportSupported) {
+        consoleLog("import is not supported. The framework scripts will be fetched, patched, and then loaded. A CSP script-src rule blocking 'unsafe-eval' may prevent this");
+    } else {
+        consoleLog('import is supported. The framework will be loaded as-is.');
     }
     // Get index.html and parse it for scripts
     function getScriptNodes(indexHtmlSrc) {
@@ -173,7 +188,7 @@ var initWebWorkerBlazor = async function () {
         var scriptPatt = /<script\s*(.*?)(?:\s*\/>|\s*>(.*?)<\/script>)/gms;
         var attributesPatt = /([^\s=]+)(?:=(?:"([^"]*)"|'([^"]*)'|([^\s=]+)))?/gm;
         var m = scriptPatt.exec(indexHtmlSrc);
-        while(m) {
+        while (m) {
             let scriptNode = {
                 attributes: {},
                 text: m[2],
@@ -199,68 +214,110 @@ var initWebWorkerBlazor = async function () {
     // '' - none or unknown
     // 'wasm' - Using Blazor WebAssembly standalone runtime
     // 'united' - Using Blazor United runtime
-    // do on the fly worker compatiblility patching if needed 
+    // do on the fly worker compatiblility patching if needed
     // add webworker-enabled attribute to the runtime if it is not already there
-    async function detectBlazorRuntime(scriptNodes) {
+    function prePatchedCheck(jsStr) {
+        return jsStr.indexOf('importShim(') !== -1 || jsStr.indexOf('// FRAMEWORK-PATCHED' || jsStr.indexOf('exportShim(') !== -1) !== -1;
+    }
+    async function detectBlazorRuntime(scriptNodes, overrideUnitedRuntime) {
         for (var scriptNode of scriptNodes) {
             let src = scriptNode.attributes.src;
             if (!src) continue;
+            if (src.includes('_framework/blazor.web.js')) {
+                if (overrideUnitedRuntime) {
+                    // blazor united comes with the wasm runtime also
+                    // if overrideUnitedRuntime == true, we will use the wasm runtime instead of the united runtime
+                    src = src.replace('_framework/blazor.web.js', '_framework/blazor.webassembly.js');
+                    scriptNode.attributes.src = src;
+                } else {
+                    // modify the united runtime as needed for compatibility with WebWorkers
+                    if (typeof scriptNode.attributes[WebWorkerEnabledAttributeName] === 'undefined') {
+                        scriptNode.attributes[WebWorkerEnabledAttributeName] = '';
+                    }
+                    // load script text so we can do some on-the-fly patching to fix compatibility with WebWorkers
+                    let jsStr = await getText(src);
+                    if (prePatchedCheck(jsStr)) {
+                        // already patched. 
+                        return {
+                            runtime: 'united',
+                            prepatched: true,
+                        };
+                    }
+                    // united runtime doesn't start web assembly when it loads by default
+                    // it waits until a webassembly rendered component is loaded but that won't happen in a worker so we patch
+                    // the runtime to allow access to the method that actually starts webassembly directly
+                    // self.__blazorInternal.startLoadingWebAssemblyIfNotStarted()
+                    var placeHolderPatt = /(this\.initialComponents\s*=\s*\[\s*\],\s*)/;
+                    var m = placeHolderPatt.exec(jsStr);
+                    if (m) {
+                        jsStr = jsStr.replace(placeHolderPatt, '$1setTimeout(()=>this.startWebAssemblyIfNotStarted(),0),');
+                        if (!dynamicImportSupported) {
+                            // fix dynamic imports
+                            jsStr = fixModuleScript(jsStr, src);
+                        }
+                        scriptNode.text = jsStr;
+                        return {
+                            runtime: 'united',
+                            prepatched: false,
+                        };
+                    } else {
+                        console.warn(`Failed to find Blazor United runtime 'placeHolderPatt' in '${src}' for on the fly patching. Will try Blazor WASM runtime '_framework/blazor.webassembly.js' as fallback.`);
+                        src = src.replace('_framework/blazor.web.js', '_framework/blazor.webassembly.js');
+                        scriptNode.attributes.src = src;
+                    }
+                }
+            }
             if (src.includes('_framework/blazor.webassembly.js')) {
+                // modify the wasm runtime as needed for compatibility with WebWorkers
                 if (typeof scriptNode.attributes[WebWorkerEnabledAttributeName] === 'undefined') {
                     scriptNode.attributes[WebWorkerEnabledAttributeName] = '';
                 }
                 if (!dynamicImportSupported) {
                     // load script text so we can do some on-the-fly patching to fix compatibility with WebWorkers
                     let jsStr = await getText(src);
+                    if (prePatchedCheck(jsStr)) {
+                        // already patched. 
+                        return {
+                            runtime: 'wasm',
+                            prepatched: true,
+                        };
+                    }
                     // fix dynamic imports
                     scriptNode.text = fixModuleScript(jsStr, src);
                 }
-                return 'wasm';
-            }
-            if (src.includes('_framework/blazor.web.js')) {
-                if (typeof scriptNode.attributes[WebWorkerEnabledAttributeName] === 'undefined') {
-                    scriptNode.attributes[WebWorkerEnabledAttributeName] = '';
-                }
-                // load script text so we can do some on-the-fly patching to fix compatibility with WebWorkers
-                let jsStr = await getText(src);
-                // united runtime doesn't start web assembly when it loads by default
-                // it waits until a webassembly rendered component is loaded but that won't happen in a worker so we patch
-                // the runtime to allow access to the method that actually starts webassembly directly
-                // self.__blazorInternal.startLoadingWebAssemblyIfNotStarted()
-                jsStr = jsStr.replace(/(this\.initialComponents=\[\],)/, '$1self.__blazorInternal=this,');
-                if (!dynamicImportSupported) {
-                    // fix dynamic imports
-                    jsStr = fixModuleScript(jsStr, src);
-                }
-                scriptNode.text = jsStr;
-                return 'united';
+                return {
+                    runtime: 'wasm',
+                    prepatched: false,
+                };
             }
         }
-        return '';
+        return null;
     }
-    //
-    globalThisObj.importOverride = async function (src) {
+    // if a strict content-security-policy prohibits 'unsafe-eval' the below method will not work... sciprts will need to be pre-processed (during publish/build step)
+    // import shim used by code that is patched on the fly
+    self.importOverride = async function (src) {
         consoleLog('importOverride', src);
         var jsStr = await getText(src);
         jsStr = fixModuleScript(jsStr, src);
         let fn = new Function(jsStr);
-        var ret = fn.apply(createProxiedObject(globalThisObj), []);
+        var ret = fn.apply(createProxiedObject(self), []);
         if (!ret) ret = createProxiedObject({});
         return ret;
     }
-    // this method fixes 'dynamic import scripts' to work in an environment that does not support 'dynamic import scripts'
-    // it is designed for and tested agaisnt the Blazor WASM runtime.
+    // this method patches 'dynamic import scripts' to work in an environment that does not support 'dynamic import scripts'
+    // it is designed for and tested with the Blazor WASM runtime.
     // it may not work on other modules
     function fixModuleScript(jsStr, src) {
         // handle things that are automatically handled by import
-        src = new URL(src, document.baseURI).toString();
+        src = getAppURL(src);
         var scriptUrl = JSON.stringify(src);
         consoleLog('fixModuleScript.scriptUrl', src, scriptUrl);
         // fix import.meta.url - The full URL to the module
+        // import.meta.url -> SCRIPT_URL
         jsStr = jsStr.replace(/\bimport\.meta\.url\b/g, scriptUrl);
-        // import.meta
+        // import.meta -> { url: SCRIPT_URL }
         jsStr = jsStr.replace(/\bimport\.meta\b/g, `{ url: ${scriptUrl} }`);
-        // import
+        // import -> importOverride ... importOverride can decide at runtime if it needs to use 'importScripts' or 'await import'
         jsStr = jsStr.replace(/\bimport\(/g, 'importOverride(');
         // export
         // https://www.geeksforgeeks.org/what-is-export-default-in-javascript/
@@ -278,12 +335,20 @@ var initWebWorkerBlazor = async function () {
         // handle exports from
         // dotnet.7.0.0.amub20uvka.js
         // export default createDotnetRuntime
+        //
+        // dotnet 8.0
+        // dotnet.native.8.0.1.sz7bf40gus.js
+        // export default createDotnetRuntime;
+        // dotnet.js
+        // export{Be as default,Fe as dotnet,We as exit};
+        // dotnet.runtime.8.0.1.rswtxkdyko.js
+        // export{Ll as configureEmscriptenStartup,Rl as configureRuntimeStartup,Bl as configureWorkerStartup,Ol as initializeExports,Uo as initializeReplacements,b as passEmscriptenInternals,g as setRuntimeGlobals};
         exportPatt = /\bexport[ \t]+default[ \t]+([^ \t;]+)/g;
         jsStr = jsStr.replace(exportPatt, '_exportsOverride.default = $1');
         // export{Be as default,Fe as dotnet,We as exit};
         // below changes the above line to the below line changing the 'VAR as KEY' to 'KEY:VAR'
         // export{default:Be,dotnet:Fe,exit:We};
-        exportPatt = /([a-zA-Z0-9]+)\s+as\s+([a-zA-Z0-9]+)/g;
+        exportPatt = /([a-zA-Z0-9$_]+)\s+as\s+([a-zA-Z0-9$_]+)/g;
         jsStr = jsStr.replace(exportPatt, '$2:$1');
         // export { dotnet, exit, INTERNAL };
         exportPatt = /\bexport\b[ \t]*(\{[^}]+\})/g;
@@ -293,11 +358,11 @@ var initWebWorkerBlazor = async function () {
     }
     async function initializeBlazor() {
         // get index.html text for parsing
-        var indexHtmlSrc = await getText('./');
+        var indexHtmlSrc = await getText(indexHtml);
         var scriptNodes = getScriptNodes(indexHtmlSrc);
         // detect runtime type and do runtime patching if needed
-        var blazorRuntimeType = await detectBlazorRuntime(scriptNodes);
-        consoleLog(`BlazorRuntimeType: '${blazorRuntimeType}'`);
+        var runtimeInfo = await detectBlazorRuntime(scriptNodes);
+        consoleLog(`BlazorRuntimeType: '${runtimeInfo.runtime}' Prepatched: ${runtimeInfo.prepatched}`);
         // setup standard document
         var htmlEl = document.appendChild(document.createElement('html'));
         var headEl = htmlEl.appendChild(document.createElement('head'));
@@ -328,12 +393,8 @@ var initWebWorkerBlazor = async function () {
         }
         // init document
         document.initDocument();
-        // If using the Blazor United runtime we have to start the webassembly runtime manually (requires previous patching of the runtime; done above)
-        if (blazorRuntimeType === 'united') {
-            consoleLog('Starting Blazor United webassembly runtime');
-            self.__blazorInternal.startWebAssemblyIfNotStarted();
-        }
     }
     await initializeBlazor();
 };
 initWebWorkerBlazor();
+
