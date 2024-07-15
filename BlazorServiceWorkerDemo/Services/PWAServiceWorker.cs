@@ -70,7 +70,6 @@ namespace BlazorServiceWorkerDemo.Services
                     Log("Failed to cache:", cacheName);
                 }
             }
-
             // optionally skip waiting
             await self!.SkipWaiting();
         }
