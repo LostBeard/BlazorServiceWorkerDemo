@@ -49,48 +49,47 @@ namespace BlazorServiceWorkerDemo.Services
         {
             Log($"ServiceWorker_OnInstallAsync");
 
-            if (!isProduction || assetsManifest == null)
+            // cache assets (if needed)
+            if (isProduction && assetsManifest != null)
             {
-                return;
+                try
+                {
+                    // Fetch and cache all matching items from the assets manifest
+                    var assetsRequests = assetsManifest!.Assets
+                        .Where(asset => offlineAssetsInclude.Any(o => asset.Url.EndsWith(o)))
+                        .Where(asset => !offlineAssetsExclude.Any(o => asset.Url.Equals(o)))
+                        .Select(asset => new Request(asset.Url, new RequestOptions { Integrity = asset.Hash, Cache = "no-cache" }))
+                        .ToList();
+
+                    var cache = await caches!.Open(cacheName);
+                    await cache.AddAll(assetsRequests);
+                    Log("Cached:", cacheName);
+                }
+                catch (Exception ex)
+                {
+                    Log("Failed to cache:", cacheName);
+                }
             }
 
-            try
-            {
-                // Fetch and cache all matching items from the assets manifest
-                var assetsRequests = assetsManifest!.Assets
-                    .Where(asset => offlineAssetsInclude.Any(o => asset.Url.EndsWith(o)))
-                    .Where(asset => !offlineAssetsExclude.Any(o => asset.Url.Equals(o)))
-                    .Select(asset => new Request(asset.Url, new RequestOptions { Integrity = asset.Hash, Cache = "no-cache" }))
-                    .ToList();
-
-                var cache = await caches!.Open(cacheName);
-                await cache.AddAll(assetsRequests);
-                Log("Cached:", cacheName);
-            }
-            catch (Exception ex)
-            {
-                Log("Failed to cache:", cacheName);
-            }
+            // optionally skip waiting and claim all clients
+            await self!.SkipWaiting();
+            using var clients = self.Clients;
+            await clients.Claim();
         }
 
         protected override async Task ServiceWorker_OnActivateAsync(ExtendableEvent e)
         {
             Log($"ServiceWorker_OnActivateAsync");
-            // optionally skip waiting and claim all clients
-            await self!.SkipWaiting();
-            using var clients = self.Clients;
-            await clients.Claim();
 
-            if (!isProduction || assetsManifest == null)
+            // delete old caches
+            if (isProduction)
             {
-                return;
+                // Delete unused caches that start with offline prefix
+                var cacheKeys = await caches!.Keys();
+                await Task.WhenAll(cacheKeys
+                    .Where(key => key.StartsWith(cacheNamePrefix) && key != cacheName)
+                    .Select(key => caches.Delete(key)));
             }
-
-            // Delete unused caches
-            var cacheKeys = await caches!.Keys();
-            await Task.WhenAll(cacheKeys
-                .Where(key => key.StartsWith(cacheNamePrefix) && key != cacheName)
-                .Select(key => caches.Delete(key)));
         }
 
         protected override async Task<Response> ServiceWorker_OnFetchAsync(FetchEvent e)
