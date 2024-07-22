@@ -19,11 +19,11 @@ A very basic and verbose example. Create a new .Net 8 RC2 Blazor WASM project.
 Add Nuget SpawnDev.BlazorJS.WebWorkers to the project.  
 [![NuGet](https://img.shields.io/nuget/dt/SpawnDev.BlazorJS.WebWorkers.svg?label=SpawnDev.BlazorJS.WebWorkers)](https://www.nuget.org/packages/SpawnDev.BlazorJS.WebWorkers)  
 
-### wwwroot/service-worker.js
-Create or modify to match the line below.
-```js
-importScripts('_content/SpawnDev.BlazorJS.WebWorkers/spawndev.blazorjs.webworkers.js');
-```
+#### wwwroot/index.html
+Remove the serviceWorker registration from `index.html` (default for PWA Blazor WASM apps). SpawnDev.BlazorJS.WebWorkers will register the service worker on its own when called in the `Program.cs`.
+  
+Delete below line (if found) in `index.html`:  
+`<script>navigator.serviceWorker.register('service-worker.js');</script>`
 
 ### Program.cs
 A minimal Program.cs
