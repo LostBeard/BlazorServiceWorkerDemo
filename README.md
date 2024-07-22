@@ -13,14 +13,14 @@ This is currently a working proof of concept and likely to change. Any and all f
 This project relies on a couple of my other projects [SpawnDev.BlazorJS](https://github.com/LostBeard/SpawnDev.BlazorJS) and [SpawnDev.BlazorJS.WebWorkers](https://github.com/LostBeard/SpawnDev.BlazorJS.WebWorkers)
 
 ## Quick Start
-A very basic and verbose example. Create a new .Net 8 RC2 Blazor WASM project. 
+A very basic and verbose example. Create a new .Net 8 Blazor WebAssembly Standalone App project. `Progressive Web Application` is optional, but not needed for this example.
 
 ### Add Nuget
 Add Nuget SpawnDev.BlazorJS.WebWorkers to the project.  
 [![NuGet](https://img.shields.io/nuget/dt/SpawnDev.BlazorJS.WebWorkers.svg?label=SpawnDev.BlazorJS.WebWorkers)](https://www.nuget.org/packages/SpawnDev.BlazorJS.WebWorkers)  
 
 ### wwwroot/index.html
-Remove the serviceWorker registration from `index.html` (default for PWA Blazor WASM apps). SpawnDev.BlazorJS.WebWorkers will register the service worker on its own when called in the `Program.cs`.
+If your project is a PWA, remove the ServiceWorker registration from `index.html`. SpawnDev.BlazorJS.WebWorkers will register the service worker on its own when called in the `Program.cs`.
   
 Delete below line (if found) in `index.html`:  
 `<script>navigator.serviceWorker.register('service-worker.js');</script>`
@@ -48,6 +48,7 @@ A verbose service worker implementation.
 - Handle ServiceWorker events by overriding the ServiceWorkerEventHandler base class virtual methods.
 - The ServiceWorker event handlers are only called when running in a ServiceWorkerGlobalScope context.
 - The AppServiceWorker singleton may be started in any scope and therefore must be scope aware. (For example, do not try to use localStorage in a Worker scope.)
+
 ```cs
 public class AppServiceWorker : ServiceWorkerEventHandler
 {
@@ -123,5 +124,4 @@ public class AppServiceWorker : ServiceWorkerEventHandler
         Log($"ServiceWorker_OnNotificationClickAsync");
     }
 }
-
 ```
