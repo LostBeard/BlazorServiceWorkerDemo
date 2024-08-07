@@ -22,7 +22,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.7" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.7" PrivateAssets="all" />
 		<PackageReference Include="System.Text.Json" Version="8.0.4" />
-		<PackageReference Include="SpawnDev.BlazorJS.WebWorkers" Version="2.4.5" />
+		<PackageReference Include="SpawnDev.BlazorJS.WebWorkers" Version="2.5.5" />
 	</ItemGroup>
 
 	<!-- SpawnDev.BlazorJS.WebWorkers config -->
@@ -34,10 +34,9 @@
 		- Build time patching gives better performance and works with stricter ContentSecurityPolicy rules
 		- false - patch at runtime (current default)
 		- true  - patch during build (Not currently PWA compatible)
-		! NOTE - Not currently compatible with PWA using an asset manifest because some assets are modified and their hash is not currently updated.
-		! This will be fixed in a future release.
+		! NOTE - If using an asset manifest via the ServiceWorkerAssetsManifest project flag, some assets are modified and their hash will be updated during publish.
 		-->
-		<WebWorkerPatchFramework>false</WebWorkerPatchFramework>
+		<WebWorkerPatchFramework>true</WebWorkerPatchFramework>
 	</PropertyGroup>
 
 </Project>
