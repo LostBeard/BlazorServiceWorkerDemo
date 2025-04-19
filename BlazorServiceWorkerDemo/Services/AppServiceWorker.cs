@@ -58,9 +58,9 @@ namespace BlazorServiceWorkerDemo.Services
             Log($"ServiceWorker_OnPushAsync");
         }
 
-        protected override void ServiceWorker_OnPushSubscriptionChange(Event e)
+        protected override async Task ServiceWorker_OnPushSubscriptionChangeAsync(PushSubscriptionChangeEvent e)
         {
-            Log($"ServiceWorker_OnPushSubscriptionChange");
+            Log($"ServiceWorker_OnPushSubscriptionChangeAsync");
         }
 
         protected override async Task ServiceWorker_OnSyncAsync(SyncEvent e)

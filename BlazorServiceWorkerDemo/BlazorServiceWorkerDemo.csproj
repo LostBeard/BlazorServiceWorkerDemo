@@ -1,40 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<CompressionEnabled>false</CompressionEnabled>
-		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <CompressionEnabled>false</CompressionEnabled>
+    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<!-- This is here only to allow the ServiceWorkerAssetsManifest to work, which generates an asset manifest on publish -->
-		<ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
-	</ItemGroup>
+  <ItemGroup>
+    <!-- This is here only to allow the ServiceWorkerAssetsManifest to work, which generates an asset manifest on publish -->
+    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<None Include="..\LICENSE.txt" Pack="true" PackagePath="\" />
-		<None Include="..\README.md" Pack="true" PackagePath="\" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="..\LICENSE.txt" Pack="true" PackagePath="\" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.11" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.11" PrivateAssets="all" />
-	</ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.11" PrivateAssets="all" />
+  </ItemGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.0" PrivateAssets="all" />
-	</ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.0" PrivateAssets="all" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="SpawnDev.BlazorJS.WebWorkers" Version="2.5.22" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SpawnDev.BlazorJS" Version="2.13.3" />
+    <PackageReference Include="SpawnDev.BlazorJS.WebWorkers" Version="2.10.2" />
+  </ItemGroup>
 
-	<!-- SpawnDev.BlazorJS.WebWorkers config -->
-	<PropertyGroup>
-		<!-- 
+  <!-- SpawnDev.BlazorJS.WebWorkers config -->
+  <PropertyGroup>
+    <!-- 
 		WebWorkerPatchFramework
 		- To run Blazor WASM in non-window scopes (DedicatedWorker, SharedWorker, ServiceWorker) Blazor framework files need to be patched.
 		- Patching can be done at runtime in Javascript, or at build time. 
@@ -43,7 +44,7 @@
 		- true  - patch during build
 		! NOTE - The asset manifest file (service-worker-assets.js) will be updated during publish build if using the ServiceWorkerAssetsManifest flag and WebWorkerPatchFramework == true
 		-->
-		<WebWorkerPatchFramework>true</WebWorkerPatchFramework>
-	</PropertyGroup>
+    <WebWorkerPatchFramework>true</WebWorkerPatchFramework>
+  </PropertyGroup>
 
 </Project>
